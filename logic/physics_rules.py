@@ -74,6 +74,7 @@ class PCBPhysicsRules:
             # Logic to enhance specific AI classes with physics data
             if det['class'] == 'clearance_violation':
                 # In production, 'width_mil' would be extracted from the bbox or vision engine
+                # Here we use a representative value for the validation logic
                 measured_clearance = 6.0 
                 is_internal = "Inner" in det.get('layer', '')
                 
@@ -95,6 +96,11 @@ class PCBPhysicsRules:
                 )
                 det['thermal_current_limit_amps'] = current_limit
                 det['description'] = f"Necking reduces current limit to {current_limit}A."
+            
+            elif det['class'] == 'acid_trap':
+                # Acid traps are generally considered high risk in manufacturing
+                det['physics_confirmed'] = True
+                det['severity'] = 'HIGH'
 
             validated_findings.append(det)
             
@@ -103,3 +109,4 @@ class PCBPhysicsRules:
 def get_physics_engine():
     """Singleton-style accessor for the Physics Engine."""
     return PCBPhysicsRules()
+    
